@@ -1,12 +1,12 @@
 # Compiler flags
-CFLAGS := -w -O0 -m64 -D'main(a,b)=main(int argc, char** argv)' -Duint64_t='unsigned long long' -D'printf(s,...)=(printf_print(s,(uint64_t[]){__VA_ARGS__}))'
+CFLAGS := -w -O3 -m64 -D'main(a,b)=main(int argc, char** argv)' -Duint64_t='unsigned long long' -D'printf(s,...)=(printf_print(s,(uint64_t[]){__VA_ARGS__}))'
 
 # Compile selfie.c into selfie executable
 selfie: selfie.c
 	$(CC) $(CFLAGS) $< -o $@
 
 # Consider these targets as targets, not files
-.PHONY : compile quine debug replay os vm min mob sat all clean
+.PHONY : compile quine escape debug replay os vm min mob sat all clean
 
 # Self-compile
 compile: selfie
@@ -16,7 +16,11 @@ compile: selfie
 
 # Compile and run quine and compare its output to itself
 quine: selfie
-	./selfie -c manuscript/code/quine.c selfie.c -m 1 | sed '/^.\/selfie/d' | diff -q manuscript/code/quine.c -
+	./selfie -c manuscript/code/quine.c selfie.c -m 1 | sed '/^.\/selfie/d' | diff -B -q manuscript/code/quine.c -
+
+# Demonstrate available escape sequences
+escape: selfie
+	./selfie -c manuscript/code/escape.c -m 1
 
 # Run debugger
 debug: selfie

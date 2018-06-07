@@ -1,80 +1,82 @@
-// Copyright (c) 2015-2018, the Selfie Project authors. All rights reserved.
-// Please see the AUTHORS file for details. Use of this source code is
-// governed by a BSD license that can be found in the LICENSE file.
-//
-// Selfie is a project of the Computational Systems Group at the
-// Department of Computer Sciences of the University of Salzburg
-// in Austria. For further information and code please refer to:
-//
-// http://selfie.cs.uni-salzburg.at
-//
-// The Selfie Project provides an educational platform for teaching
-// undergraduate and graduate students the design and implementation
-// of programming languages and runtime systems. The focus is on the
-// construction of compilers, libraries, operating systems, and even
-// virtual machine monitors. The common theme is to identify and
-// resolve self-reference in systems code which is seen as the key
-// challenge when teaching systems engineering, hence the name.
-//
-// Selfie is a self-contained 64-bit, 10-KLOC C implementation of:
-//
-// 1. a self-compiling compiler called starc that compiles
-//    a tiny but still fast subset of C called C Star (C*) to
-//    a tiny and easy-to-teach subset of RISC-V called RISC-U,
-// 2. a self-executing emulator called mipster that executes
-//    RISC-U code including itself when compiled with starc,
-// 3. a self-hosting hypervisor called hypster that provides
-//    RISC-U virtual machines that can host all of selfie,
-//    that is, starc, mipster, and hypster itself,
-// 4. a prototypical symbolic execution engine called monster
-//    that executes RISC-U code symbolically,
-// 5. a simple SAT solver that reads CNF DIMACS files, and
-// 6. a tiny C* library called libcstar utilized by selfie.
-//
-// Selfie is implemented in a single (!) file and kept minimal for simplicity.
-// There is also a simple in-memory linker, a RISC-U disassembler, a profiler,
-// and a debugger with replay as well as minimal operating system support in
-// the form of RISC-V system calls built into the emulator.
-//
-// C* is a tiny Turing-complete subset of C that includes dereferencing
-// (the * operator) but excludes composite data types, bitwise and Boolean
-// operators, and many other features. There are only unsigned 64-bit
-// integers and 64-bit pointers as well as character and string literals.
-// This choice turns out to be helpful for students to understand the
-// true role of composite data types such as arrays and records.
-// Bitwise operations are implemented in libcstar using unsigned integer
-// arithmetics helping students better understand arithmetic operators.
-// C* is supposed to be close to the minimum necessary for implementing
-// a self-compiling, single-pass, recursive-descent compiler. C* can be
-// taught in one to two weeks of classes depending on student background.
-//
-// The compiler can readily be extended to compile features missing in C*
-// and to improve performance of the generated code. The compiler generates
-// RISC-U executables in ELF format that are compatible with the official
-// RISC-V toolchain. The mipster emulator can execute RISC-U executables
-// loaded from file but also from memory immediately after code generation
-// without going through the file system.
-//
-// RISC-U is a tiny Turing-complete subset of the RISC-V instruction set.
-// It only features unsigned 64-bit integer arithmetic, double-word memory,
-// and simple control-flow instructions but neither bitwise nor byte- and
-// word-level instructions. RISC-U can be taught in one week of classes.
-//
-// The emulator implements minimal operating system support that is meant
-// to be extended by students, first as part of the emulator, and then
-// ported to run on top of it, similar to an actual operating system or
-// virtual machine monitor. The fact that the emulator can execute itself
-// helps exposing the self-referential nature of that challenge. In fact,
-// selfie goes one step further by implementing microkernel functionality
-// as part of the emulator and a hypervisor that can run as part of the
-// emulator as well as on top of it, all with the same code.
-//
-// Selfie is the result of many years of teaching systems engineering.
-// The design of the compiler is inspired by the Oberon compiler of
-// Professor Niklaus Wirth from ETH Zurich. RISC-U is inspired by the
-// RISC-V community around Professor David Patterson from UC Berkeley.
-// The design of the hypervisor is inspired by microkernels of
-// Professor Jochen Liedtke from University of Karlsruhe.
+/*
+Copyright (c) 2015-2018, the Selfie Project authors. All rights reserved.
+Please see the AUTHORS file for details. Use of this source code is
+governed by a BSD license that can be found in the LICENSE file.
+
+Selfie is a project of the Computational Systems Group at the
+Department of Computer Sciences of the University of Salzburg
+in Austria. For further information and code please refer to:
+
+http://selfie.cs.uni-salzburg.at
+
+The Selfie Project provides an educational platform for teaching
+undergraduate and graduate students the design and implementation
+of programming languages and runtime systems. The focus is on the
+construction of compilers, libraries, operating systems, and even
+virtual machine monitors. The common theme is to identify and
+resolve self-reference in systems code which is seen as the key
+challenge when teaching systems engineering, hence the name.
+
+Selfie is a self-contained 64-bit, 10-KLOC C implementation of:
+
+1. a self-compiling compiler called starc that compiles
+   a tiny but still fast subset of C called C Star (C*) to
+   a tiny and easy-to-teach subset of RISC-V called RISC-U,
+2. a self-executing emulator called mipster that executes
+   RISC-U code including itself when compiled with starc,
+3. a self-hosting hypervisor called hypster that provides
+   RISC-U virtual machines that can host all of selfie,
+   that is, starc, mipster, and hypster itself,
+4. a prototypical symbolic execution engine called monster
+   that executes RISC-U code symbolically,
+5. a simple SAT solver that reads CNF DIMACS files, and
+6. a tiny C* library called libcstar utilized by selfie.
+
+Selfie is implemented in a single (!) file and kept minimal for simplicity.
+There is also a simple in-memory linker, a RISC-U disassembler, a profiler,
+and a debugger with replay as well as minimal operating system support in
+the form of RISC-V system calls built into the emulator.
+
+C* is a tiny Turing-complete subset of C that includes dereferencing
+(the * operator) but excludes composite data types, bitwise and Boolean
+operators, and many other features. There are only unsigned 64-bit
+integers and 64-bit pointers as well as character and string literals.
+This choice turns out to be helpful for students to understand the
+true role of composite data types such as arrays and records.
+Bitwise operations are implemented in libcstar using unsigned integer
+arithmetics helping students better understand arithmetic operators.
+C* is supposed to be close to the minimum necessary for implementing
+a self-compiling, single-pass, recursive-descent compiler. C* can be
+taught in one to two weeks of classes depending on student background.
+
+The compiler can readily be extended to compile features missing in C*
+and to improve performance of the generated code. The compiler generates
+RISC-U executables in ELF format that are compatible with the official
+RISC-V toolchain. The mipster emulator can execute RISC-U executables
+loaded from file but also from memory immediately after code generation
+without going through the file system.
+
+RISC-U is a tiny Turing-complete subset of the RISC-V instruction set.
+It only features unsigned 64-bit integer arithmetic, double-word memory,
+and simple control-flow instructions but neither bitwise nor byte- and
+word-level instructions. RISC-U can be taught in one week of classes.
+
+The emulator implements minimal operating system support that is meant
+to be extended by students, first as part of the emulator, and then
+ported to run on top of it, similar to an actual operating system or
+virtual machine monitor. The fact that the emulator can execute itself
+helps exposing the self-referential nature of that challenge. In fact,
+selfie goes one step further by implementing microkernel functionality
+as part of the emulator and a hypervisor that can run as part of the
+emulator as well as on top of it, all with the same code.
+
+Selfie is the result of many years of teaching systems engineering.
+The design of the compiler is inspired by the Oberon compiler of
+Professor Niklaus Wirth from ETH Zurich. RISC-U is inspired by the
+RISC-V community around Professor David Patterson from UC Berkeley.
+The design of the hypervisor is inspired by microkernels of
+Professor Jochen Liedtke from University of Karlsruhe.
+*/
 
 // *~*~ *~*~ *~*~ *~*~ *~*~ *~*~ *~*~ *~*~ *~*~ *~*~ *~*~ *~*~ *~*~
 // -----------------------------------------------------------------
@@ -176,6 +178,7 @@ uint64_t CHAR_EXCLAMATION  = '!';
 uint64_t CHAR_PERCENTAGE   = '%';
 uint64_t CHAR_SINGLEQUOTE  =  39; // ASCII code 39 = '
 uint64_t CHAR_DOUBLEQUOTE  = '"';
+uint64_t CHAR_BACKSLASH    =  92; // ASCII code 92 = backslash
 uint64_t CHAR_AMPERSAND    = '&';
 uint64_t CHAR_DOT          = '.';
 
@@ -309,6 +312,8 @@ uint64_t identifierStringMatch(uint64_t stringIndex);
 uint64_t identifierOrKeyword();
 
 void getSymbol();
+
+void handleEscapeSequence();
 
 // ------------------------ GLOBAL CONSTANTS -----------------------
 
@@ -464,7 +469,6 @@ uint64_t  getAddress(uint64_t* entry)    { return             *(entry + 6); }
 uint64_t  getScope(uint64_t* entry)      { return             *(entry + 7); }
 uint64_t  getVArgList(uint64_t* entry)   { return             *(entry + 8); }
 
-
 void setNextEntry(uint64_t* entry, uint64_t* next)    { *entry       = (uint64_t) next; }
 void setString(uint64_t* entry, uint64_t* identifier) { *(entry + 1) = (uint64_t) identifier; }
 void setLineNumber(uint64_t* entry, uint64_t line)    { *(entry + 2) = line; }
@@ -474,7 +478,6 @@ void setValue(uint64_t* entry, uint64_t value)        { *(entry + 5) = value; }
 void setAddress(uint64_t* entry, uint64_t address)    { *(entry + 6) = address; }
 void setScope(uint64_t* entry, uint64_t scope)        { *(entry + 7) = scope; }
 void setVArgList(uint64_t* entry, uint64_t vArgList)  { *(entry + 8) = vArgList; }
-
 
 // ------------------------ GLOBAL CONSTANTS -----------------------
 
@@ -2291,8 +2294,7 @@ uint64_t* smalloc(uint64_t size) {
     return memory;
   else if ((uint64_t) memory == 0) {
     print(selfieName);
-    print((uint64_t*) ": malloc out of memory");
-    println();
+    print((uint64_t*) ": malloc out of memory\n");
 
     exit(EXITCODE_OUTOFVIRTUALMEMORY);
   }
@@ -2373,9 +2375,7 @@ void syntaxErrorCharacter(uint64_t expected) {
   print((uint64_t*) " expected but ");
 
   printCharacter(character);
-  print((uint64_t*) " found");
-
-  println();
+  print((uint64_t*) " found\n");
 }
 
 void syntaxErrorIdentifier(uint64_t* expected) {
@@ -2385,9 +2385,7 @@ void syntaxErrorIdentifier(uint64_t* expected) {
   print((uint64_t*) " expected but ");
 
   print(identifier);
-  print((uint64_t*) " found");
-
-  println();
+  print((uint64_t*) " found\n");
 }
 
 void getCharacter() {
@@ -2404,6 +2402,11 @@ void getCharacter() {
     character = *character_buffer;
 
     numberOfReadCharacters = numberOfReadCharacters + 1;
+
+    // keep track of line numbers for error reporting and code annotation
+    if (character == CHAR_LF)
+      // only linefeeds count, not carriage returns
+      lineNumber = lineNumber + 1;
   } else if (numberOfReadBytes == 0)
     // reached end of file
     character = CHAR_EOF;
@@ -2436,51 +2439,85 @@ uint64_t isCharacterWhitespace() {
 }
 
 uint64_t findNextCharacter() {
-  uint64_t inComment;
+  uint64_t inSingleLineComment;
+  uint64_t inMultiLineComment;
 
   // assuming we are not in a comment
-  inComment = 0;
+  inSingleLineComment = 0;
+  inMultiLineComment  = 0;
 
   // read and discard all whitespace and comments until a character is found
   // that is not whitespace and does not occur in a comment, or the file ends
   while (1) {
-    if (inComment) {
+    if (inSingleLineComment) {
       getCharacter();
 
       if (isCharacterNewLine())
-        // comments end with new line
-        inComment = 0;
+        // single-line comments end with new line
+        inSingleLineComment = 0;
       else if (character == CHAR_EOF)
         return character;
       else
         // count the characters in comments as ignored characters
-        // line feed and carriage return are counted below
         numberOfIgnoredCharacters = numberOfIgnoredCharacters + 1;
 
-    } else if (isCharacterWhitespace()) {
-      // keep track of line numbers for error reporting and code annotation
-      if (character == CHAR_LF)
-        lineNumber = lineNumber + 1;
-
-      // count line feed and carriage return as ignored characters
-      numberOfIgnoredCharacters = numberOfIgnoredCharacters + 1;
-
+    } else if (inMultiLineComment) {
       getCharacter();
+
+      if (character == CHAR_ASTERISK) {
+        getCharacter();
+
+        if (character == CHAR_SLASH) {
+          // multi-line comments end with "*/"
+          inMultiLineComment = 0;
+
+          getCharacter();
+        }
+      }
+
+      if (character == CHAR_EOF) {
+        if (inMultiLineComment) {
+          // multi-line comment is not terminated
+          syntaxErrorMessage((uint64_t*) "runaway multi-line comment");
+
+      	  exit(EXITCODE_SCANNERERROR);
+        } else
+          // this is redundant but easier to understand
+          return character;
+      } else if (inMultiLineComment)
+        // count the characters in comments as ignored characters
+        numberOfIgnoredCharacters = numberOfIgnoredCharacters + 1;
+      else
+        // count '*/' as ignored characters
+        numberOfIgnoredCharacters = numberOfIgnoredCharacters + 2;
+
+    } else if (isCharacterWhitespace()) {
+      getCharacter();
+
+      // also count line feed and carriage return as ignored characters
+      numberOfIgnoredCharacters = numberOfIgnoredCharacters + 1;
 
     } else if (character == CHAR_SLASH) {
       getCharacter();
 
       if (character == CHAR_SLASH) {
         // "//" begins a comment
-        inComment = 1;
+        inSingleLineComment = 1;
 
-        // count both slashes as ignored characters as well
+        // count both slashes as ignored characters
         numberOfIgnoredCharacters = numberOfIgnoredCharacters + 2;
 
-        // count the number of comments
+        numberOfComments = numberOfComments + 1;
+      } else if (character == CHAR_ASTERISK) {
+        // "/*" begins a multi-line comment
+        inMultiLineComment = 1;
+
+        // count both slash and asterisk as ignored characters
+        numberOfIgnoredCharacters = numberOfIgnoredCharacters + 2;
+
         numberOfComments = numberOfComments + 1;
       } else {
-        // while looking for "//" we actually found '/'
+        // while looking for "//" and "/*" we actually found '/'
         symbol = SYM_DIV;
 
         return character;
@@ -2674,6 +2711,9 @@ void getSymbol() {
             exit(EXITCODE_SCANNERERROR);
           }
 
+          if (character == CHAR_BACKSLASH)
+            handleEscapeSequence();
+
           storeCharacter(string, i, character);
 
           i = i + 1;
@@ -2825,6 +2865,28 @@ void getSymbol() {
   }
 }
 
+void handleEscapeSequence() {
+  // ignoring the backslash
+  numberOfIgnoredCharacters = numberOfIgnoredCharacters + 1;
+
+  getCharacter();
+
+  if (character == 'n')
+    character = CHAR_LF;
+  else if (character == 't')
+    character = CHAR_TAB;
+  else if (character == CHAR_DOUBLEQUOTE)
+    character = CHAR_DOUBLEQUOTE;
+  else if (character == CHAR_SINGLEQUOTE)
+    character = CHAR_SINGLEQUOTE;
+  else if (character == CHAR_BACKSLASH)
+    character = CHAR_BACKSLASH;
+  else {
+    syntaxErrorMessage("Unknown escape sequence found.\n");
+
+    exit(EXITCODE_SCANNERERROR);
+  }
+}
 // -----------------------------------------------------------------
 // ------------------------- SYMBOL TABLE --------------------------
 // -----------------------------------------------------------------
@@ -2933,8 +2995,7 @@ uint64_t reportUndefinedProcedures() {
       printLineNumber((uint64_t*) "syntax error", getLineNumber(entry));
       print((uint64_t*) "procedure ");
       print(getString(entry));
-      print((uint64_t*) " undefined");
-      println();
+      print((uint64_t*) " undefined\n");
     }
 
     // keep looking
@@ -3160,9 +3221,7 @@ void syntaxErrorSymbol(uint64_t expected) {
   print((uint64_t*) " expected but ");
 
   printSymbol(symbol);
-  print((uint64_t*) " found");
-
-  println();
+  print((uint64_t*) " found\n");
 }
 
 void syntaxErrorUnexpected() {
@@ -3170,9 +3229,7 @@ void syntaxErrorUnexpected() {
 
   print((uint64_t*) "unexpected symbol ");
   printSymbol(symbol);
-  print((uint64_t*) " found");
-
-  println();
+  print((uint64_t*) " found\n");
 }
 
 void printType(uint64_t type) {
@@ -3197,9 +3254,7 @@ void typeWarning(uint64_t expected, uint64_t found) {
 
   printType(found);
 
-  print((uint64_t*) " found");
-
-  println();
+  print((uint64_t*) " found\n");
 }
 
 uint64_t* getVariableOrBigInt(uint64_t* variableOrBigInt, uint64_t class) {
@@ -3213,8 +3268,7 @@ uint64_t* getVariableOrBigInt(uint64_t* variableOrBigInt, uint64_t class) {
     if (entry == (uint64_t*) 0) {
       printLineNumber((uint64_t*) "syntax error", lineNumber);
       print(variableOrBigInt);
-      print((uint64_t*) " undeclared");
-      println();
+      print((uint64_t*) " undeclared\n");
 
       exit(EXITCODE_PARSERERROR);
     }
@@ -3397,7 +3451,7 @@ uint64_t help_call_codegen(uint64_t* entry, uint64_t* procedure) {
     // default return type is "int"
     type = UINT64_T;
 
-    // set number of arguments to -1 as we do not know the number of arguments now
+    // set number of arguments to -1 as we do not know the number of arguments
     createSymbolTableEntry(GLOBAL_TABLE, procedure, lineNumber, PROCEDURE, type, -1, binaryLength, 0);
 
     emitJAL(REG_RA, 0);
@@ -3481,6 +3535,7 @@ void help_procedure_epilogue(uint64_t numberOfParameterBytes, uint64_t hasVariab
   // deallocate memory for return address and parameters
   emitADDI(REG_SP, REG_SP, REGISTERSIZE + numberOfParameterBytes);
   
+  // deallocate extra space caused by variable arguments
   if (hasVariableArguments) {
     emitADD(REG_SP, REG_SP, currentTemporary());
     tfree(1);
@@ -3537,7 +3592,6 @@ uint64_t compile_call(uint64_t* procedure) {
       getSymbol();
       
       // check if entry already exists
-      // if function has variable argument list it must exists otherwise there will be errors
       if (entry != (uint64_t*) 0) {
         if (getVArgList(entry)) {
           // push number of additional arguments on stack (multiplied by REGISTERSIZE)
@@ -3561,7 +3615,7 @@ uint64_t compile_call(uint64_t* procedure) {
           }
         }  
       }
-      
+
       type = help_call_codegen(entry, procedure);
       
     } else {
@@ -3596,8 +3650,8 @@ uint64_t compile_factor() {
   uint64_t type;
   uint64_t negative;
   uint64_t dereference;
-  uint64_t getAddress;
   uint64_t* variableOrProcedureName;
+  uint64_t getAddress;
 
   // assert: n = allocatedTemporaries
 
@@ -3661,10 +3715,10 @@ uint64_t compile_factor() {
   } else
     dereference = 0;
     
-  // optional: getAddress
+    // optional: getAddress
   if (symbol == SYM_AMPERSAND) {
     getAddress = 1;
-    
+     
     getSymbol();
   } else
     getAddress = 0;
@@ -4281,8 +4335,8 @@ void compile_statement() {
         typeWarning(ltype, rtype);
 
       offset = getAddress(entry);
-      
-      if (isSignedInteger(offset, 12)) {  
+
+      if (isSignedInteger(offset, 12)) {
         if (getVArgList(entry)) {
           load_addressOfVariableOrBigInt(variableOrProcedureName, VARIABLE);
           emitSD(currentTemporary(), 0, previousTemporary());
@@ -4301,7 +4355,6 @@ void compile_statement() {
 
         tfree(2);
       }
-      
 
       numberOfAssignments = numberOfAssignments + 1;
 
@@ -4451,7 +4504,7 @@ void compile_procedure(uint64_t* procedure, uint64_t type) {
 
       while (symbol == SYM_COMMA) {
         getSymbol();
-        
+
         if (symbol == SYM_DOTS) {
           getSymbol();
           vArgList = 1;
@@ -4471,14 +4524,14 @@ void compile_procedure(uint64_t* procedure, uint64_t type) {
 
       while (parameters < numberOfParameters) {
         // 8 bytes offset to skip frame pointer and link
-        
+
         if (vArgList) {
           // add space for number of additional arguments
           setAddress(entry, parameters * REGISTERSIZE + 2 * REGISTERSIZE + REGISTERSIZE);
           setVArgList(entry, vArgList);
         } else
           setAddress(entry, parameters * REGISTERSIZE + 2 * REGISTERSIZE);
-
+          
         parameters = parameters + 1;
 
         entry = getNextEntry(entry);
@@ -4510,14 +4563,13 @@ void compile_procedure(uint64_t* procedure, uint64_t type) {
 
   if (symbol == SYM_SEMICOLON) {
     // this is a procedure declaration
-    if (entry == (uint64_t*) 0) {
+    if (entry == (uint64_t*) 0)
       // procedure never called nor declared nor defined
       createSymbolTableEntry(GLOBAL_TABLE, procedure, lineNumber, PROCEDURE, type, numberOfParameters, 0, vArgList);
-    } else if (getType(entry) != type) {
+    else if (getType(entry) != type)
       // procedure already called, declared, or even defined
       // check return type but otherwise ignore
       typeWarning(getType(entry), type);
-    }
 
     getSymbol();
 
@@ -4536,7 +4588,6 @@ void compile_procedure(uint64_t* procedure, uint64_t type) {
         else
           // procedure already defined
           isUndefined = 0;
-          
       }
 
       if (isUndefined) {
@@ -4557,8 +4608,7 @@ void compile_procedure(uint64_t* procedure, uint64_t type) {
         printLineNumber((uint64_t*) "warning", lineNumber);
         print((uint64_t*) "redefinition of procedure ");
         print(procedure);
-        print((uint64_t*) " ignored");
-        println();
+        print((uint64_t*) " ignored\n");
       }
     }
 
@@ -4601,10 +4651,8 @@ void compile_procedure(uint64_t* procedure, uint64_t type) {
     fixlink_relative(returnBranches, binaryLength);
 
     returnBranches = 0;
-    
-    help_procedure_epilogue(numberOfParameters * REGISTERSIZE, vArgList);
 
-    
+    help_procedure_epilogue(numberOfParameters * REGISTERSIZE, vArgList);
 
   } else
     syntaxErrorUnexpected();
@@ -4671,7 +4719,6 @@ void compile_cstar() {
       } else
         endingWithLParenthesis = 0;
 
-
       if (symbol == SYM_IDENTIFIER) {
         variableOrProcedureName = identifier;
 
@@ -4716,8 +4763,7 @@ void compile_cstar() {
             printLineNumber((uint64_t*) "warning", currentLineNumber);
             print((uint64_t*) "redefinition of global variable ");
             print(variableOrProcedureName);
-            print((uint64_t*) " ignored");
-            println();
+            print((uint64_t*) " ignored\n");
           }
         }
       } else
@@ -4852,16 +4898,15 @@ void selfie_compile() {
 
       numberOfSourceFiles = numberOfSourceFiles + 1;
 
-      printf((uint64_t*) "%s: selfie compiling %s with starc", selfieName, sourceName);
-      println();
+
+      printf((uint64_t*) "%s: selfie compiling %s with starc\n", selfieName, sourceName);
 
       // assert: sourceName is mapped and not longer than maxFilenameLength
 
       sourceFD = signExtend(open(sourceName, O_RDONLY, 0), SYSCALL_BITWIDTH);
 
       if (signedLessThan(sourceFD, 0)) {
-        printf((uint64_t*) "%s: could not open input file %s", selfieName, sourceName);
-        println();
+        printf((uint64_t*) "%s: could not open input file %s\n", selfieName, sourceName);
 
         exit(EXITCODE_IOERROR);
       }
@@ -4871,26 +4916,21 @@ void selfie_compile() {
 
       compile_cstar();
 
-      printf((uint64_t*) "%s: %d characters read in %d lines and %d comments", selfieName, numberOfReadCharacters, lineNumber - 1, numberOfComments);
-      println();
+      printf((uint64_t*) "%s: %d characters read in %d lines and %d comments\n", selfieName, numberOfReadCharacters, lineNumber - 1, numberOfComments);
 
       printf((uint64_t*) "%s: with %d(", selfieName, numberOfReadCharacters - numberOfIgnoredCharacters);
       printFixedPointPercentage(numberOfReadCharacters, numberOfReadCharacters - numberOfIgnoredCharacters);
-      printf((uint64_t*) "%%) characters in %d  actual symbols", numberOfScannedSymbols);
-      println();
+      printf((uint64_t*) "%%) characters in %d  actual symbols\n", numberOfScannedSymbols);
 
-      printf((uint64_t*) "%s: %d global variables, %d procedures, %d string literals", selfieName, numberOfGlobalVariables, numberOfProcedures, numberOfStrings);
-      println();
+      printf((uint64_t*) "%s: %d global variables, %d procedures, %d string literals\n", selfieName, numberOfGlobalVariables, numberOfProcedures, numberOfStrings);
 
-      printf((uint64_t*) "%s: %d calls, %d assignments, %d while, %d if, %d return", selfieName, numberOfCalls, numberOfAssignments, numberOfWhile, numberOfIf, numberOfReturn);
-      println();
+      printf((uint64_t*) "%s: %d calls, %d assignments, %d while, %d if, %d return\n", selfieName, numberOfCalls, numberOfAssignments, numberOfWhile, numberOfIf, numberOfReturn);
     }
   }
 
   if (numberOfSourceFiles == 0) {
     print(selfieName);
-    print((uint64_t*) ": nothing to compile, only library generated");
-    println();
+    print((uint64_t*) ": nothing to compile, only library generated\n");
   }
 
   emitStart();
@@ -4908,8 +4948,7 @@ void selfie_compile() {
   printInteger(codeLength / INSTRUCTIONSIZE);
   print((uint64_t*) " instructions and ");
   printInteger(binaryLength - codeLength);
-  print((uint64_t*) " bytes of data");
-  println();
+  print((uint64_t*) " bytes of data\n");
 
   printInstructionCounters();
 }
@@ -5261,7 +5300,7 @@ void printInstructionCounters() {
   uint64_t ic;
 
   ic = getTotalNumberOfInstructions();
-  
+
   printf((uint64_t*) "%s: init:    ", selfieName);
   printInstructionCounter(ic, ic_lui, (uint64_t*) "lui");
   print((uint64_t*) ", ");
@@ -5836,8 +5875,7 @@ void implementExit(uint64_t* context) {
   printInteger(signExtend(getExitCode(context), SYSCALL_BITWIDTH));
   print((uint64_t*) " and ");
   printFixedPointRatio(getBumpPointer(context) - getProgramBreak(context), MEGABYTE);
-  print((uint64_t*) "MB mallocated memory");
-  println();
+  print((uint64_t*) "MB mallocated memory\n");
 }
 
 void emitRead() {
@@ -5975,8 +6013,7 @@ void implementRead(uint64_t* context) {
           print(selfieName);
           print((uint64_t*) ": reading into virtual address ");
           printHexadecimal(vbuffer, 8);
-          print((uint64_t*) " failed because the address is unmapped");
-          println();
+          print((uint64_t*) " failed because the address is unmapped\n");
         }
       }
     } else {
@@ -5988,8 +6025,7 @@ void implementRead(uint64_t* context) {
         print(selfieName);
         print((uint64_t*) ": reading into virtual address ");
         printHexadecimal(vbuffer, 8);
-        print((uint64_t*) " failed because the address is invalid");
-        println();
+        print((uint64_t*) " failed because the address is invalid\n");
       }
     }
   }
@@ -6109,8 +6145,7 @@ void implementWrite(uint64_t* context) {
           print(selfieName);
           print((uint64_t*) ": writing into virtual address ");
           printHexadecimal(vbuffer, 8);
-          print((uint64_t*) " failed because the address is unmapped");
-          println();
+          print((uint64_t*) " failed because the address is unmapped\n");
         }
       }
     } else {
@@ -6122,8 +6157,7 @@ void implementWrite(uint64_t* context) {
         print(selfieName);
         print((uint64_t*) ": writing into virtual address ");
         printHexadecimal(vbuffer, 8);
-        print((uint64_t*) " failed because the address is invalid");
-        println();
+        print((uint64_t*) " failed because the address is invalid\n");
       }
     }
   }
@@ -6191,8 +6225,7 @@ uint64_t down_loadString(uint64_t* table, uint64_t vaddr, uint64_t* s) {
             print(selfieName);
             print((uint64_t*) ": detected symbolic value ");
             printSymbolicMemory(mrvc);
-            print((uint64_t*) " in filename of open call");
-            println();
+            print((uint64_t*) " in filename of open call\n");
 
             exit(EXITCODE_SYMBOLICEXECUTIONERROR);
           }
@@ -6219,8 +6252,7 @@ uint64_t down_loadString(uint64_t* table, uint64_t vaddr, uint64_t* s) {
           print(selfieName);
           print((uint64_t*) ": opening file with name at virtual address ");
           printHexadecimal(vaddr, 8);
-          print((uint64_t*) " failed because the address is unmapped");
-          println();
+          print((uint64_t*) " failed because the address is unmapped\n");
         }
       }
     } else {
@@ -6228,8 +6260,7 @@ uint64_t down_loadString(uint64_t* table, uint64_t vaddr, uint64_t* s) {
         print(selfieName);
         print((uint64_t*) ": opening file with name at virtual address ");
         printHexadecimal(vaddr, 8);
-        print((uint64_t*) " failed because the address is invalid");
-        println();
+        print((uint64_t*) " failed because the address is invalid\n");
       }
     }
   }
@@ -6274,8 +6305,7 @@ void implementOpen(uint64_t* context) {
       print(selfieName);
       print((uint64_t*) ": opening file with name at virtual address ");
       printHexadecimal(vfilename, 8);
-      print((uint64_t*) " failed because the name is too long");
-      println();
+      print((uint64_t*) " failed because the name is too long\n");
     }
   }
 
@@ -6321,8 +6351,7 @@ void implementMalloc(uint64_t* context) {
     print(selfieName);
     print((uint64_t*) ": trying to malloc ");
     printInteger(size);
-    print((uint64_t*) " bytes net");
-    println();
+    print((uint64_t*) " bytes net\n");
   }
 
   size = roundUp(size, SIZEOFUINT64);
@@ -6529,18 +6558,13 @@ uint64_t* tlb(uint64_t* table, uint64_t vaddr) {
 
   if (debug_tlb) {
     print(selfieName);
-    print((uint64_t*) ": tlb access:");
-    println();
-    print((uint64_t*) " vaddr: ");
+    print((uint64_t*) ": tlb access:\n vaddr: ");
     printBinary(vaddr, CPUBITWIDTH);
-    println();
-    print((uint64_t*) " page:  ");
+    print((uint64_t*) "\n page:  ");
     printBinary(page * PAGESIZE, CPUBITWIDTH);
-    println();
-    print((uint64_t*) " frame: ");
+    print((uint64_t*) "\n frame: ");
     printBinary(frame, CPUBITWIDTH);
-    println();
-    print((uint64_t*) " paddr: ");
+    print((uint64_t*) "\n paddr: ");
     printBinary(paddr, CPUBITWIDTH);
     println();
   }
@@ -7769,14 +7793,12 @@ void do_ecall() {
   } else if (*(registers + REG_A7) == SYSCALL_SWITCH)
     if (record) {
       print(selfieName);
-      print((uint64_t*) ": context switching during recording is unsupported");
-      println();
+      print((uint64_t*) ": context switching during recording is unsupported\n");
 
       exit(EXITCODE_BADARGUMENTS);
     } else if (symbolic) {
       print(selfieName);
-      print((uint64_t*) ": context switching during symbolic execution is unsupported");
-      println();
+      print((uint64_t*) ": context switching during symbolic execution is unsupported\n");
 
       exit(EXITCODE_BADARGUMENTS);
     } else {
@@ -7925,8 +7947,7 @@ void printSymbolicMemory(uint64_t svc) {
     printHexadecimal(*(los + svc), 0);
     print((uint64_t*) "=malloc(");
     printInteger(*(ups + svc));
-    print((uint64_t*) ")}");
-    println();
+    print((uint64_t*) ")}\n");
     return;
   } else if (*(vaddrs + svc) < NUMBEROFREGISTERS)
     printRegister(*(vaddrs + svc));
@@ -7944,10 +7965,9 @@ void printSymbolicMemory(uint64_t svc) {
     printInteger(*(ups + svc));
   }
   if (*(types + svc))
-    print((uint64_t*) ")}");
+    print((uint64_t*) ")}\n");
   else
-    print((uint64_t*) "]}");
-  println();
+    print((uint64_t*) "]}\n");
 }
 
 uint64_t cardinality(uint64_t lo, uint64_t up) {
@@ -8127,8 +8147,7 @@ void storeConstrainedMemory(uint64_t vaddr, uint64_t lo, uint64_t up, uint64_t t
   if (mrvc < trb) {
     // we do not support potentially aliased constrained memory
     print(selfieName);
-    print((uint64_t*) ": detected potentially aliased constrained memory");
-    println();
+    print((uint64_t*) ": detected potentially aliased constrained memory\n");
 
     exit(EXITCODE_SYMBOLICEXECUTIONERROR);
   }
@@ -8237,8 +8256,7 @@ void createConstraints(uint64_t lo1, uint64_t up1, uint64_t lo2, uint64_t up2, u
       } else {
         // we cannot handle non-singleton interval intersections in comparison
         print(selfieName);
-        print((uint64_t*) ": detected non-singleton interval intersection");
-        println();
+        print((uint64_t*) ": detected non-singleton interval intersection\n");
 
         exit(EXITCODE_SYMBOLICEXECUTIONERROR);
       }
@@ -8351,8 +8369,7 @@ void throwException(uint64_t exception, uint64_t faultingPage) {
       printException(exception, faultingPage);
       print((uint64_t*) " exception in presence of ");
       printException(getException(currentContext), getFaultingPage(currentContext));
-      print((uint64_t*) " exception");
-      println();
+      print((uint64_t*) " exception\n");
 
       exit(EXITCODE_MULTIPLEEXCEPTIONERROR);
     }
@@ -8368,8 +8385,7 @@ void throwException(uint64_t exception, uint64_t faultingPage) {
     printHexadecimal((uint64_t) currentContext, 8);
     print((uint64_t*) " throws ");
     printException(exception, faultingPage);
-    print((uint64_t*) " exception");
-    println();
+    print((uint64_t*) " exception\n");
   }
 }
 
@@ -8859,18 +8875,16 @@ void printProfile() {
   printInteger(getTotalNumberOfInstructions());
   print((uint64_t*) " executed instructions and ");
   printFixedPointRatio(pused(), MEGABYTE);
-  print((uint64_t*) "MB mapped memory");
-  println();
+  print((uint64_t*) "MB mapped memory\n");
 
   if (getTotalNumberOfInstructions() > 0) {
     printInstructionCounters();
 
     print(selfieName);
     if (sourceLineNumber != (uint64_t*) 0)
-      print((uint64_t*) ": profile: total,max(ratio%)@addr(line#),2max,3max");
+      print((uint64_t*) ": profile: total,max(ratio%)@addr(line#),2max,3max\n");
     else
-      print((uint64_t*) ": profile: total,max(ratio%)@addr,2max,3max");
-    println();
+      print((uint64_t*) ": profile: total,max(ratio%)@addr,2max,3max\n");
 
     printPerInstructionProfile((uint64_t*) ": calls:   ", calls, callsPerProcedure);
     printPerInstructionProfile((uint64_t*) ": loops:   ", iterations, iterationsPerLoop);
@@ -9245,8 +9259,7 @@ uint64_t* palloc() {
         freePageFrameMemory = freePageFrameMemory - PAGESIZE;
     } else {
       print(selfieName);
-      print((uint64_t*) ": palloc out of physical memory");
-      println();
+      print((uint64_t*) ": palloc out of physical memory\n");
 
       exit(EXITCODE_OUTOFPHYSICALMEMORY);
     }
@@ -9278,8 +9291,7 @@ void mapAndStore(uint64_t* context, uint64_t vaddr, uint64_t data) {
       storeSymbolicMemory(getPT(context), vaddr, data, 0, data, data, tc);
     else {
       print(selfieName);
-      print((uint64_t*) ": ealloc out of memory");
-      println();
+      print((uint64_t*) ": ealloc out of memory\n");
 
       exit(EXITCODE_OUTOFTRACEMEMORY);
     }
@@ -9457,8 +9469,7 @@ uint64_t handleDivisionByZero(uint64_t* context) {
   print(selfieName);
   print((uint64_t*) ": division by zero");
   if (record) {
-    print((uint64_t*) ", replaying...");
-    println();
+    print((uint64_t*) ", replaying...\n");
 
     replayTrace();
 
@@ -9519,8 +9530,7 @@ uint64_t mipster(uint64_t* toContext) {
   uint64_t timeout;
   uint64_t* fromContext;
 
-  print((uint64_t*) "mipster");
-  println();
+  print((uint64_t*) "mipster\n");
 
   timeout = TIMESLICE;
 
@@ -9546,8 +9556,7 @@ uint64_t mipster(uint64_t* toContext) {
 uint64_t hypster(uint64_t* toContext) {
   uint64_t* fromContext;
 
-  print((uint64_t*) "hypster");
-  println();
+  print((uint64_t*) "hypster\n");
 
   while (1) {
     fromContext = hypster_switch(toContext, TIMESLICE);
@@ -9570,8 +9579,7 @@ uint64_t mixter(uint64_t* toContext, uint64_t mix) {
   printInteger(mix);
   print((uint64_t*) "% mipster/");
   printInteger(100 - mix);
-  print((uint64_t*) "% hypster)");
-  println();
+  print((uint64_t*) "% hypster)\n");
 
   mslice = TIMESLICE;
 
@@ -9678,8 +9686,7 @@ void mapUnmappedPages(uint64_t* context) {
 }
 
 uint64_t minster(uint64_t* toContext) {
-  print((uint64_t*) "minster");
-  println();
+  print((uint64_t*) "minster\n");
 
   // virtual is like physical memory in initial context up to memory size
   // by mapping unmapped pages (for the heap) to all available page frames
@@ -9691,8 +9698,7 @@ uint64_t minster(uint64_t* toContext) {
 }
 
 uint64_t mobster(uint64_t* toContext) {
-  print((uint64_t*) "mobster");
-  println();
+  print((uint64_t*) "mobster\n");
 
   // does not handle page faults, relies on fancy hypsters to do that
   return minmob(toContext);
@@ -9742,8 +9748,7 @@ uint64_t monster(uint64_t* toContext) {
   uint64_t timeout;
   uint64_t* fromContext;
 
-  print((uint64_t*) "monster");
-  println();
+  print((uint64_t*) "monster\n");
 
   b = 0;
 
@@ -9811,8 +9816,7 @@ uint64_t selfie_run(uint64_t machine) {
 
   if (binaryLength == 0) {
     print(selfieName);
-    print((uint64_t*) ": nothing to run, debug, or host");
-    println();
+    print((uint64_t*) ": nothing to run, debug, or host\n");
 
     return EXITCODE_BADARGUMENTS;
   }
@@ -10006,8 +10010,7 @@ void selfie_printDimacs() {
       variable = variable + 1;
     }
 
-    print((uint64_t*) "0");
-    println();
+    print((uint64_t*) "0\n");
 
     clause = clause + 1;
   }
@@ -10045,13 +10048,9 @@ void dimacs_findNextCharacter(uint64_t newLine) {
         numberOfComments = numberOfComments + 1;
       }
     } else if (isCharacterWhitespace()) {
-      if (isCharacterNewLine()) {
+      if (isCharacterNewLine())
         newLine = 1;
-
-        // keep track of line numbers for error reporting and code annotation
-        if (character == CHAR_LF)
-          lineNumber = lineNumber + 1;
-      } else
+      else
         newLine = 0;
 
       // count whitespace as ignored characters
@@ -10221,8 +10220,7 @@ void selfie_sat() {
 
   if (dimacsName == (uint64_t*) 0) {
     print(selfieName);
-    print((uint64_t*) ": nothing to SAT solve");
-    println();
+    print((uint64_t*) ": nothing to SAT solve\n");
 
     return;
   }
@@ -10294,10 +10292,8 @@ void setArgument(uint64_t* argv) {
 
 void printUsage() {
   print(selfieName);
-  print((uint64_t*) ": usage: ");
-  print((uint64_t*) "selfie { -c { source } | -o binary | -s assembly | -l binary | -sat dimacs } ");
-  print((uint64_t*) "[ ( -m | -d | -r | -n | -y | -min | -mob ) 0-64 ... ]");
-  println();
+  print((uint64_t*) ": usage: selfie { -c { source } | -o binary | -s assembly | -l binary | -sat dimacs }");
+  print((uint64_t*) " [ ( -m | -d | -r | -n | -y | -min | -mob ) 0-64 ... ]\n");
 }
 
 uint64_t selfie() {
